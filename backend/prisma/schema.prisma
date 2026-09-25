@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  DISQUALIFIED
+  CONVERTED
+}
+
+enum ActivityAction {
+  LEAD_CREATED
+  LEAD_UPDATED
+  STATUS_CHANGED
+}
+
+model Lead {
+  id         String     @id @default(uuid())
+  name       String?
+  email      String?
+  phone      String?
+  adId       String?
+  rawPayload Json
+  status     LeadStatus @default(NEW)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  activities Activity[]
+
+  @@index([status, createdAt])
+  @@index([adId])
+}
+
+model Activity {
+  id          String         @id @default(uuid())
+  leadId      String
+  lead        Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  action      ActivityAction
+  description String
+  createdAt   DateTime       @default(now())
+
+  @@index([leadId, createdAt])
+  @@index([action, createdAt])
+}
