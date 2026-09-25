@@ -22,7 +22,7 @@ enum ActivityAction {
   STATUS_CHANGED
 }
 
-model Lead {
+model lead {
   id         String     @id @default(uuid())
   name       String?
   email      String?
@@ -32,16 +32,16 @@ model Lead {
   status     LeadStatus @default(NEW)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  activities Activity[]
+  activities activity[]
 
   @@index([status, createdAt])
   @@index([adId])
 }
 
-model Activity {
+model activity {
   id          String         @id @default(uuid())
   leadId      String
-  lead        Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  source      lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
   action      ActivityAction
   description String
   createdAt   DateTime       @default(now())

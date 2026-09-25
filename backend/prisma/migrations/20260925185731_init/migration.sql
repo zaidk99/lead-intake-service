@@ -5,7 +5,7 @@ CREATE TYPE "LeadStatus" AS ENUM ('NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED
 CREATE TYPE "ActivityAction" AS ENUM ('LEAD_CREATED', 'LEAD_UPDATED', 'STATUS_CHANGED');
 
 -- CreateTable
-CREATE TABLE "Lead" (
+CREATE TABLE "lead" (
     "id" TEXT NOT NULL,
     "name" TEXT,
     "email" TEXT,
@@ -16,31 +16,31 @@ CREATE TABLE "Lead" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Lead_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "lead_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Activity" (
+CREATE TABLE "activity" (
     "id" TEXT NOT NULL,
     "leadId" TEXT NOT NULL,
     "action" "ActivityAction" NOT NULL,
     "description" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "activity_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE INDEX "Lead_status_createdAt_idx" ON "Lead"("status", "createdAt");
+CREATE INDEX "lead_status_createdAt_idx" ON "lead"("status", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "Lead_adId_idx" ON "Lead"("adId");
+CREATE INDEX "lead_adId_idx" ON "lead"("adId");
 
 -- CreateIndex
-CREATE INDEX "Activity_leadId_createdAt_idx" ON "Activity"("leadId", "createdAt");
+CREATE INDEX "activity_leadId_createdAt_idx" ON "activity"("leadId", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "Activity_action_createdAt_idx" ON "Activity"("action", "createdAt");
+CREATE INDEX "activity_action_createdAt_idx" ON "activity"("action", "createdAt");
 
 -- AddForeignKey
-ALTER TABLE "Activity" ADD CONSTRAINT "Activity_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "Lead"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "activity" ADD CONSTRAINT "activity_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "lead"("id") ON DELETE CASCADE ON UPDATE CASCADE;
