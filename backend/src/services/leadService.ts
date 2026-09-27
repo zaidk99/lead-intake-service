@@ -69,6 +69,30 @@ export async function getLead(id:string){
   });
 }
 
+export async function updateLeadStatus(id:string, status: LeadStatus) {
+  return prisma.$transaction(async (tx:Prisma.TransactionClient) => {
+    const current = await tx.lead.findUnique({where:{id}});
+
+    if(!current)return {ok:false as const, reason: "missing" as const};
+
+    if (current.status === status) return {ok:false as const,  reason: "same" as const};
+
+    const lead = await tx.lead.update({
+      where: {id},
+      data: {
+        status,
+        activities: {
+          create : {
+            action : ActivityAction.STATUS_CHANGED,
+            description: `status changed fro ${current.status} to ${status}`,
+          },
+        },
+      },
+    });
+    return {ok: true as const, lead};
+  });
+}
+
 
 
 export async function updateLeadContact(
