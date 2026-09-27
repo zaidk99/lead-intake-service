@@ -9,14 +9,14 @@ const LEAD_STATUSES = [
   "CONVERTED",
 ] as const;
 
-function isLeadStatus(value:string):value is LeadStatus {
-    return LEAD_STATUSES.includes(value as LeadStatus);
+function isLeadStatus(value: string): value is LeadStatus {
+  return LEAD_STATUSES.includes(value as LeadStatus);
 }
 
 function parsePositiveInt(value: unknown, fallback: number): number | null {
-  if(value === undefined) return fallback;
+  if (value === undefined) return fallback;
   const num = Number(value);
-  if(!Number.isInteger(num) || num < 1) return null;
+  if (!Number.isInteger(num) || num < 1) return null;
   return num;
 }
 
@@ -40,6 +40,35 @@ export function parseListQuery(query: {
   }
 
   return { ok: true as const, page, limit, status: query.status };
+}
+
+export function parseStatusBody(body: unknown) {
+  if (body === null || typeof body !== "object" || Array.isArray(body)) {
+    return { ok: false as const };
+  }
+  const status = (body as { status?: unknown }).status;
+  if (typeof status !== "string" || !isLeadStatus(status)) {
+    return { ok: false as const };
+  }
+  return { ok: true as const, status };
+}
+
+const contactBodySchema = z
+  .object({
+    name: z.string().optional(),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+  })
+  .refine(
+    (value) =>
+      value.name !== undefined ||
+      value.email !== undefined ||
+      value.phone !== undefined,
+  );
+export function parseContactBody(body: unknown) {
+  const parsed = contactBodySchema.safeParse(body);
+  if (!parsed.success) return { ok: false as const };
+  return { ok: true as const, data: parsed.data };
 }
 
 const webhookBodySchema = z.object({
