@@ -29,45 +29,56 @@ describe("leads api", () => {
   });
 
   it("rejects a webhook body that is not an object", async () => {
-    const listBeforeResponse = await request(app).get("/leads?limit=1").expect(200);
+    const listBeforeResponse = await request(app)
+      .get("/leads?limit=1")
+      .expect(200);
 
     await request(app)
       .post("/webhook/meta-lead")
       .send(["not-an-object"])
       .expect(400);
 
-    const listAfterResponse = await request(app).get("/leads?limit=1").expect(200);
+    const listAfterResponse = await request(app)
+      .get("/leads?limit=1")
+      .expect(200);
     assert.equal(listAfterResponse.body.total, listBeforeResponse.body.total);
   });
 
   it("filters and paginates the lead list", async () => {
-  const created = await request(app)
-    .post("/webhook/meta-lead")
-    .send({ name: "Filter User", email: "filter@test.com" })
-    .expect(201);
+    const created = await request(app)
+      .post("/webhook/meta-lead")
+      .send({ name: "Filter User", email: "filter@test.com" })
+      .expect(201);
 
-  const leadId = created.body.id as string;
+    const leadId = created.body.id as string;
 
-  await request(app)
-    .patch(`/leads/${leadId}/status`)
-    .send({ status: "CONTACTED" })
-    .expect(200);
+    await request(app)
+      .patch(`/leads/${leadId}/status`)
+      .send({ status: "CONTACTED" })
+      .expect(200);
 
-  const filteredResponse = await request(app)
-    .get("/leads?status=CONTACTED&limit=100")
-    .expect(200);
+    const filteredResponse = await request(app)
+      .get("/leads?status=CONTACTED&limit=100")
+      .expect(200);
 
-  const found = filteredResponse.body.data.find((lead: any) => lead.id === leadId);
-  assert.ok(found, "expected the CONTACTED lead to appear in the filtered list");
-  assert.equal(found.status, "CONTACTED");
+    const found = filteredResponse.body.data.find(
+      (lead: any) => lead.id === leadId,
+    );
+    assert.ok(
+      found,
+      "expected the CONTACTED lead to appear in the filtered list",
+    );
+    assert.equal(found.status, "CONTACTED");
 
-  const wrongFilterResponse = await request(app)
-    .get("/leads?status=DISQUALIFIED&limit=100")
-    .expect(200);
+    const wrongFilterResponse = await request(app)
+      .get("/leads?status=DISQUALIFIED&limit=100")
+      .expect(200);
 
-  const shouldNotBeThere = wrongFilterResponse.body.data.find((lead: any) => lead.id === leadId);
-  assert.equal(shouldNotBeThere, undefined);
-});
+    const shouldNotBeThere = wrongFilterResponse.body.data.find(
+      (lead: any) => lead.id === leadId,
+    );
+    assert.equal(shouldNotBeThere, undefined);
+  });
 
   it("writes STATUS_CHANGED and rejects the same status", async () => {
     const createResponse = await request(app)
@@ -92,9 +103,17 @@ describe("leads api", () => {
       .send({ status: "NOT_A_STATUS" })
       .expect(400);
 
-    const leadDetailResponse = await request(app).get(`/leads/${leadId}`).expect(200);
-    assert.equal(leadDetailResponse.body.activities[0].action, "STATUS_CHANGED");
-    assert.match(leadDetailResponse.body.activities[0].description, /NEW to CONTACTED/);
+    const leadDetailResponse = await request(app)
+      .get(`/leads/${leadId}`)
+      .expect(200);
+    assert.equal(
+      leadDetailResponse.body.activities[0].action,
+      "STATUS_CHANGED",
+    );
+    assert.match(
+      leadDetailResponse.body.activities[0].description,
+      /NEW to CONTACTED/,
+    );
   });
 
   it("writes LEAD_UPDATED when the email changes", async () => {
@@ -110,13 +129,13 @@ describe("leads api", () => {
       .send({ email: "new@test.com" })
       .expect(200);
 
-    const leadDetailResponse = await request(app).get(`/leads/${leadId}`).expect(200);
+    const leadDetailResponse = await request(app)
+      .get(`/leads/${leadId}`)
+      .expect(200);
     assert.equal(leadDetailResponse.body.email, "new@test.com");
     assert.equal(leadDetailResponse.body.rawPayload.email, "old@test.com");
     assert.equal(leadDetailResponse.body.activities[0].action, "LEAD_UPDATED");
   });
-
-
 
   it("returns 404 for an unknown lead", async () => {
     await request(app).get("/leads/missing-lead").expect(404);
