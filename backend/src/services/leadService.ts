@@ -1,4 +1,9 @@
-import { PrismaClient, Prisma, ActivityAction , LeadStatus } from "../generated/prisma/client";
+import {
+  PrismaClient,
+  Prisma,
+  ActivityAction,
+  LeadStatus,
+} from "../generated/prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -32,20 +37,20 @@ export async function createLeadFromWebhook(input: WebhookLeadInput) {
 }
 
 export async function listLead(input: {
-  page:number;
-  limit:number;
+  page: number;
+  limit: number;
   status?: LeadStatus;
-}){
-  const where = input.status ? {status: input.status} : {};
+}) {
+  const where = input.status ? { status: input.status } : {};
 
-  const [total,data] = await prisma.$transaction([
-    prisma.lead.count({where}),
+  const [total, data] = await prisma.$transaction([
+    prisma.lead.count({ where }),
     prisma.lead.findMany({
       where,
-      orderBy: {createdAt: "desc"},
-      skip:(input.page - 1) * input.limit,
+      orderBy: { createdAt: "desc" },
+      skip: (input.page - 1) * input.limit,
       take: input.limit,
-      select:{
+      select: {
         id: true,
         name: true,
         email: true,
@@ -53,47 +58,45 @@ export async function listLead(input: {
         adId: true,
         status: true,
         createdAt: true,
-      }
+      },
     }),
-
   ]);
-  return {data, page: input.page, limit: input.limit, total}
+  return { data, page: input.page, limit: input.limit, total };
 }
 
-export async function getLead(id:string){
+export async function getLead(id: string) {
   return prisma.lead.findUnique({
-    where: {id},
-    include:{
-      activities:{orderBy: {createdAt: "desc"}},
+    where: { id },
+    include: {
+      activities: { orderBy: { createdAt: "desc" } },
     },
   });
 }
 
-export async function updateLeadStatus(id:string, status: LeadStatus) {
-  return prisma.$transaction(async (tx:Prisma.TransactionClient) => {
-    const current = await tx.lead.findUnique({where:{id}});
+export async function updateLeadStatus(id: string, status: LeadStatus) {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const current = await tx.lead.findUnique({ where: { id } });
 
-    if(!current)return {ok:false as const, reason: "missing" as const};
+    if (!current) return { ok: false as const, reason: "missing" as const };
 
-    if (current.status === status) return {ok:false as const,  reason: "same" as const};
+    if (current.status === status)
+      return { ok: false as const, reason: "same" as const };
 
     const lead = await tx.lead.update({
-      where: {id},
+      where: { id },
       data: {
         status,
         activities: {
-          create : {
-            action : ActivityAction.STATUS_CHANGED,
-            description: `status changed fro ${current.status} to ${status}`,
+          create: {
+            action: ActivityAction.STATUS_CHANGED,
+            description: `status changed from ${current.status} to ${status}`,
           },
         },
       },
     });
-    return {ok: true as const, lead};
+    return { ok: true as const, lead };
   });
 }
-
-
 
 export async function updateLeadContact(
   id: string,
@@ -106,17 +109,24 @@ export async function updateLeadContact(
     const changes: string[] = [];
     if (input.name !== undefined && input.name !== current.name) {
       data.name = input.name;
-      changes.push(`name changed from ${current.name ?? "empty"} to ${input.name}`);
+      changes.push(
+        `name changed from ${current.name ?? "empty"} to ${input.name}`,
+      );
     }
     if (input.email !== undefined && input.email !== current.email) {
       data.email = input.email;
-      changes.push(`email changed from ${current.email ?? "empty"} to ${input.email}`);
+      changes.push(
+        `email changed from ${current.email ?? "empty"} to ${input.email}`,
+      );
     }
     if (input.phone !== undefined && input.phone !== current.phone) {
       data.phone = input.phone;
-      changes.push(`phone changed from ${current.phone ?? "empty"} to ${input.phone}`);
+      changes.push(
+        `phone changed from ${current.phone ?? "empty"} to ${input.phone}`,
+      );
     }
-    if (changes.length === 0) return { ok: false as const, reason: "same" as const };
+    if (changes.length === 0)
+      return { ok: false as const, reason: "same" as const };
     const lead = await tx.lead.update({
       where: { id },
       data: {
