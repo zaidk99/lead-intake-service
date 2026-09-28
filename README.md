@@ -4,28 +4,9 @@ A small backend service that receives leads from a Meta Ads webhook, stores them
 
 Architecture
 
-Meta Ads Webhook
-       │
-       ▼
-POST /webhook/meta-lead
-       │
-       ▼
-Express + Zod
-       │
-       ▼
-Prisma Transaction
-       │
-       ▼
-PostgreSQL
-   ┌─────────┐
-   │  lead   │
-   └─────────┘
-   ┌──────────┐
-   │ activity │
-   └──────────┘
-       │
-       ▼
-React + Vite
+
+meta ads webhook -> POST /webhook/meta-lead -> Express / Zod -> prisma transaction -> postgres -> [lead] [activity]-> [react+vite]
+
 
 Stack
 
