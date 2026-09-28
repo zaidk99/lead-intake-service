@@ -66,4 +66,3 @@ I personally verified the main flows using curl, psql, Prisma and Docker:
 * PostgreSQL contained the expected tables and seed data.
 * Docker Compose successfully started PostgreSQL, the API and frontend.
 
-The application has not been publicly deployed yet.
