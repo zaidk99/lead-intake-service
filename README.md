@@ -1,5 +1,3 @@
-Yes — the content is fine; it mainly needs proper Markdown syntax for GitHub: headings, code fences, tables, bullets, and a cleaner architecture diagram.
-
 Lead Intake Service
 
 A small backend service that receives leads from a Meta Ads webhook, stores them in PostgreSQL, records an audit trail, and displays them in a React UI.
