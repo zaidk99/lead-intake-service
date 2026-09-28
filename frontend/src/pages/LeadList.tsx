@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LEAD_STATUSES,
+  createWebhookLead,
   getLeads,
   type LeadListResponse,
   type LeadStatus,
@@ -15,6 +16,31 @@ export default function LeadList() {
   const [result, setResult] = useState<LeadListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [reload, setReload] = useState(0);
+
+  async function onAddLead() {
+    setAdding(true);
+    setError("");
+    try {
+      const stamp = new Date().toLocaleTimeString();
+      await createWebhookLead({
+        name: `Demo Lead ${stamp}`,
+        email: "demo@example.com",
+        phone: "9999999999",
+        ad_id: "123",
+        campaign_name: "Diwali Sale",
+        form_id: "form_1",
+      });
+      setStatus("");
+      setPage(1);
+      setReload((current) => current + 1);
+    } catch {
+      setError("Could not add lead");
+    } finally {
+      setAdding(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -36,12 +62,16 @@ export default function LeadList() {
     return () => {
       cancelled = true;
     };
-  }, [page, status]);
+  }, [page, status, reload]);
 
   const totalPages = result ? Math.max(1, Math.ceil(result.total / result.limit)) : 1;
 
   return (
     <section>
+      <div className="toolbar">
+      <button type="button" onClick={onAddLead} disabled={adding}>
+        {adding ? "Adding lead" : "Try adding a lead"}
+      </button>
       <label>
         Status{" "}
         <select
@@ -59,6 +89,7 @@ export default function LeadList() {
           ))}
         </select>
       </label>
+      </div>
 
       {loading && <p>Loading leads</p>}
       {error && <p>{error}</p>}

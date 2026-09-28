@@ -57,6 +57,21 @@ async function apiRequest<T>(
 }
 
 
+export async function createWebhookLead(input: {
+  name: string;
+  email: string;
+  phone: string;
+  ad_id: string;
+  campaign_name: string;
+  form_id: string;
+}) {
+  return apiRequest<{ id: string }>("/webhook/meta-lead", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
 export async function getLeads(page: number, status?: LeadStatus) {
   const params = new URLSearchParams({ page: String(page), limit: "20" });
   if (status) params.set("status", status);

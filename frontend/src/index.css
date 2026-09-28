@@ -31,6 +31,13 @@ tbody tr:hover {
   background: #f6f6f6;
 }
 
+.toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+}
+
 .pager {
   display: flex;
   gap: 12px;
