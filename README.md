@@ -154,6 +154,17 @@ The lead list supports pagination and status filtering. Database indexes are use
 - Add production monitoring and logging
 - Keep database seeding separate from application startup
 
+## Live service
+
+- UI: https://lead-intake-web.onrender.com/
+- API: https://lead-intake-service.onrender.com/health
+
+Add a lead:
+
+    curl -X POST https://lead-intake-service.onrender.com/webhook/meta-lead \
+      -H "Content-Type: application/json" \
+      -d '{"name":"Live User","email":"live@test.com","phone":"9999999999","ad_id":"123","campaign_name":"Diwali Sale","form_id":"form_1"}'
+
 ## Deployment
 
 The intended deployment setup is Render with managed PostgreSQL, a backend Docker service, and a frontend Docker service.
@@ -162,5 +173,6 @@ The intended deployment setup is Render with managed PostgreSQL, a backend Docke
 2. Create a web service from `backend/Dockerfile`. Set `DATABASE_URL` and `PORT=4000`. The image runs Prisma migrations during startup.
 3. Create a web service from `frontend/Dockerfile`. Set the build arg `VITE_API_URL` to the public API origin. Changing it requires a rebuild.
 4. Check the live API with `GET /health` and a `POST /webhook/meta-lead`, then open the frontend URL.
+
 
 Database seeding is manual and should not run on every deployment because the seed script resets the lead data.
