@@ -23,10 +23,10 @@ export default function LeadList() {
     setAdding(true);
     setError("");
     try {
-      const stamp = new Date().toLocaleTimeString();
+      const stamp = Date.now();
       await createWebhookLead({
-        name: `Demo Lead ${stamp}`,
-        email: "demo@example.com",
+        name: `Demo Lead ${new Date(stamp).toLocaleTimeString()}`,
+        email: `demo.${stamp}@example.com`,
         phone: "9999999999",
         ad_id: "123",
         campaign_name: "Diwali Sale",
