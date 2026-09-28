@@ -51,21 +51,7 @@ campaign_name and form_id are preserved inside rawPayload.
 
 Project Structure
 
-backend/
-├── src/
-│   ├── app.ts
-│   ├── routes/
-│   ├── services/
-│   ├── validators/
-│   └── middleware/
-└── prisma/
-    ├── schema.prisma
-    └── seed.ts
-frontend/
-└── src/
-    ├── pages/
-    ├── components/
-    └── api/
+backend/{src/{app.ts,routes/,services/,validators/,middleware/},prisma/{schema.prisma,seed.ts}}  frontend/src/{pages/,components/,api/}
 
 Run Locally
 
@@ -143,10 +129,7 @@ Deployment
 
 The intended deployment setup is:
 
-Render
-├── PostgreSQL
-├── Backend Docker Service
-└── Frontend Docker Service
+Render ->  PostgreSQL -> Backend Docker Service -> Frontend Docker Service
 
 The backend runs Prisma migrations during startup.
 
